@@ -15,7 +15,7 @@ const Signup = () => {
     setUserId(null);
 
     try {
-      const response = await fetch('http://todo.reworkstaging.name.ng/v1/users', {
+      const response = await fetch('https://todo.reworkstaging.name.ng/v1/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
