@@ -6,26 +6,45 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setUserId(null);
+
     try {
       const response = await fetch('http://todo.reworkstaging.name.ng/v1/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim()
+        })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        setError(data.message || 'Signup failed');
+        console.error('Signup error:', data);
+        setError(data.msg || 'Signup failed');
       } else {
-        navigate('/login');
+        console.log('Signup success:', data);
+        // If the ID is returned in data.user.id or data.id
+        const newUserId = data?.user?.id || data?.id;
+        if (newUserId) {
+          setUserId(newUserId);
+          localStorage.setItem('user_id', newUserId); // optional
+        }
+        // Redirect to login after short delay
+        setTimeout(() => navigate('/login'), 1500);
       }
     } catch (err) {
+      console.error('Network error:', err);
       setError('Network error. Try again later.');
     }
   };
@@ -34,6 +53,7 @@ const Signup = () => {
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
       <h2 className="text-2xl font-bold mb-6">Sign Up</h2>
       {error && <div className="text-red-500 mb-4">{error}</div>}
+      {userId && <div className="text-green-600 mb-4">User ID: {userId}</div>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block mb-2">Name</label>
